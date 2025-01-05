@@ -27,6 +27,7 @@ class RCON extends Discord.Client {
         // you can do whatever with this
         // a basic user object is passed for 'user' and invalid is 'true' if they failed to auth
         // the user object passed:
+        // https://old.discordjs.dev/#/docs/discord.js/13.14.0/class/User
         // {
         //     "id": "Discord User ID",
         //     "username": "Discord Account Username",
@@ -89,7 +90,8 @@ class RCON extends Discord.Client {
     RCONCommandHandler(socket, command, params, user) {
         return new Promise(async (resolve, reject) => {
             try {
-                if (!this.VALID_CMDS.includes(command.split(" ")[0]) && command != 'Help') throw new Error("invalid command " + command)
+                let cmd = this.VALID_CMDS.filter(x => x.toLowerCase() == command.split(" ")[0].toLowerCase())[0]
+                if (!cmd && command.toLowerCase() != 'help') throw new Error("invalid command " + command)
                 if (socket.destroyed || !socket.readyState) {
                     await this._socket.connect(this.conf.server.port, this.conf.server.serverIP, () => {});
                     await this.wait(2000)
