@@ -17,6 +17,9 @@ class RCON extends Discord.Client {
         this.aliases = new Discord.Collection()
         this.wait = require("util").promisify(setTimeout)
         this.conf = require('./config.json')
+        this.fallbacks = {
+            Help: ""
+        }
     }
 
     // this is used when a user logs into the website
@@ -94,6 +97,8 @@ class RCON extends Discord.Client {
                 socket.write(command)
                 socket.once('data', async (data) => {
                     try {
+                        data = Buffer.from(data, 'base64').toString('ascii')
+                        // if (command == 'Help') console.log(data, data.length)
                         if (data.toString().startsWith('Password:')) {
                             await this.wait(1200)
                             socket.write(command)
@@ -103,15 +108,15 @@ class RCON extends Discord.Client {
                                 resolve(data.toString())
                             })
                         } else {
-                            if (command == "RefreshList") {
-                                let d = JSON.parse(data.toString())
-                                this.channels.fetch("854005255644905532", true, true).then((res) => {
-                                    res.edit({ name: `Players: ${d.PlayerList.length}/${res.name.split("/")[1]}` }).catch(console.log)
-                                }).catch(console.log)
-                            }
-                            if (user) this.RCONLog(data.toString(), { cmd: command, cmdName: command.split(" ")[0], user: { name: user.username, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` } });
-                            else this.RCONLog(data.toString(), { cmd: command })
-                            resolve(data.toString())
+                            // if (command == "RefreshList") { // allow users to post a list of people online in Discord
+                            //     let d = JSON.parse(data.toString())
+                            //     this.channels.fetch("854005255644905532", true, true).then((res) => {
+                            //         res.edit({ name: `Players: ${d.PlayerList.length}/${res.name.split("/")[1]}` }).catch(console.log)
+                            //     }).catch(console.log)
+                            // }
+                            if (user) this.RCONLog(data, { cmd: command, cmdName: command.split(" ")[0], user: { name: user.username, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` } });
+                            else this.RCONLog(data, { cmd: command })
+                            resolve(data)
                         }
                     } catch (e) {
                         if (e.toString().includes('Unexpected end of JSON') || e.toString().includes('Unexpected token')) {
@@ -154,9 +159,10 @@ class RCON extends Discord.Client {
                     console.log('Logged in!')
                     resolve(socket)
                     if (!this.intervals.QUEUE_INTER) this.intervals.QUEUE_INTER = setInterval(() => this.RCON_INTER_FUNCTION(CLI), CLI.conf.intervalSpeed);
-                    if (this.VALID_CMDS.length == 0) this.RCONCommandHandler(socket, `Help`).then(res => {
-                        res = JSON.parse(res)
-                        let mds = res.Help.split(", ").map(c => c.split(" ")[0])
+                    if (this.VALID_CMDS.length == 0) this.RCONCommandHandler(socket, `Help`).then(async (res) => {
+                        let dres = JSON.parse(res)
+                        this.fallbacks.Help = res;
+                        let mds = dres.Help.map(c => c.split(" ")[0])
                         this.VALID_CMDS = mds;
                         this.started = true;
                     })
@@ -174,6 +180,7 @@ class RCON extends Discord.Client {
                                         this.VALID_ITEMS = dt.ItemList
                                     }
                                 } else {
+                                    console.log(r)
                                     let dt = JSON.parse(r + "]}")
                                     this.VALID_ITEMS = dt.ItemList
                                 }
@@ -272,7 +279,7 @@ class RCON extends Discord.Client {
                     embed.setDescription(`\`\`\`json\n${message}\n\`\`\``)
                     if (options.cmd) embed.addField('Command', options.cmd)
                     if (options.user && options.cmdName) embed.setFooter(`${options.cmdName} ran by ${options.user.name}`, options.user.avatar)
-                    c.send({ embed: embed })
+                    c.send({ embeds: [embed] })
                     res(false)
                 }
             } catch (e) {
@@ -282,21 +289,29 @@ class RCON extends Discord.Client {
         })
     }
 
-    elevation(msg) {
-        if (msg.channel.type === 'dm') return 4
-        let permlvl = 0
-
-        if (msg.member.permissions.has("KICK_MEMBERS")) permlvl = 1
-        if (msg.member.permissions.has("BAN_MEMBERS")) permlvl = 2
-        if (msg.member.permissions.has("ADMINISTRATOR")) permlvl = 3
-        if (msg.member.id === msg.member.guild.ownerID) permlvl = 4
-        return permlvl
+    elevation(member) {
+        if (member && member.member) member = member.member;
+        if (!member || !member.permissions) return 0;
+        const modRoles = { "owner": client.conf.staff.owners, "mod": { roles: client.conf.staff.moderators.roles, ids: client.conf.staff.moderators.users, permission: "BAN_MEMBERS" }, "admin": { roles: client.conf.staff.admins.roles, ids: client.conf.staff.admins.users, permission: "ADMINISTRATOR" } }
+        if (member.id == member.guild.ownerId || modRoles.owner.includes(member.id)) return 3;
+        const hasAdmin = (member.permissions.has(modRoles.admin.permission) == true ? true : null) || (modRoles.admin.ids.includes(member.id) ? true : null) || member.roles.cache.filter(x => modRoles.admin.roles.includes(`${x.id}`)).first()
+        if (hasAdmin) return 2;
+        const hasMod = (member.permissions.has(modRoles.mod.permission) == true ? true : null) || (modRoles.mod.ids.includes(member.id) ? true : null) || member.roles.cache.filter(x => modRoles.mod.roles.includes(`${x.id}`)).first()
+        if (hasMod) return 1;
+        return 0;
     }
 }
 
 const client = new RCON({
-    messageCacheMaxSize: 450,
-    disabledEvents: ['TYPING_START']
+    intents: [
+        Discord.Intents.FLAGS.GUILDS,
+        Discord.Intents.FLAGS.GUILD_INTEGRATIONS,
+        Discord.Intents.FLAGS.GUILD_MEMBERS,
+        Discord.Intents.FLAGS.GUILD_WEBHOOKS,
+        Discord.Intents.FLAGS.GUILD_MESSAGES,
+        Discord.Intents.FLAGS.DIRECT_MESSAGES
+    ],
+    partials: ['CHANNEL', 'MESSAGE']
 })
 
 async function init() {
