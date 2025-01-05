@@ -10,5 +10,5 @@ module.exports = async (client) => {
     client.spinServer().then(res => {
         client._socket = res;
         console.log("RCON Socket Connected")
-    }).catch(res => console.log("RCON Socket Startup Error: ", res))
+    }).catch(e => console.error("RCON Socket Startup Error: ", e?.stack ?? e))
 }

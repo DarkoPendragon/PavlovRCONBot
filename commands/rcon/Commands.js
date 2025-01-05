@@ -7,7 +7,7 @@ exports.run = async (client, opt, soc, msg) => {
             .setColor('RANDOM')
             .setDescription(`${client.commands.map(c => `\`${c.help.name}\``).join(", ")}`)
             .setFooter("These runs without a prefix, in the RCON channel(s)!")
-        msg.channel.send({ embed: embed })
+        msg.channel.send({ embeds: [embed] })
     }
     if (args[1]) {
         let cmd = client.commands.filter(c => c.help.name == args[1] || c.help.view == args[1])[0]
@@ -21,7 +21,7 @@ exports.run = async (client, opt, soc, msg) => {
             	key = JSON.stringify(key).replace(/"/g, "")
                 if (key != "desc") embed.addField(key, `${typeof value == 'string' ? value : JSON.stringify(value)}`, true)
             })
-            msg.reply({embed: embed})
+            msg.reply({embeds: [embed]})
     } else {
     	send()
     }

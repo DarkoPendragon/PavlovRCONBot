@@ -1,8 +1,10 @@
 const Discord = require('discord.js');
 module.exports = async (client, message) => {
     if (message.author.bot || message.system) return;
+
     let prefix = client.conf.prefix
-    if (message.channel.type == 'text' && message.content.startsWith(prefix)) {
+
+    if (message.channel.type == 'GUILD_TEXT' && message.content.startsWith(prefix)) {
         let name = message.content.split(prefix)[1].split(" ")[0]
     	const command = client.commands.filter(c => c.help.name == name && c.help.type != 'RCON').first();
         const args = prefix.includes(" ") ? message.content.split(' ').slice(2) : message.content.split(' ').slice(1);
@@ -16,7 +18,7 @@ module.exports = async (client, message) => {
         	}
         }
     } else {
-        if (message.channel.type == 'dm' && client.conf.runningChannel == "DM") {
+        if (message.channel.type == 'DM' && client.conf.runningChannel == "DM") {
             if (client.isWaitingInput.has(message.author.id)) return;
             if (!client.conf.allowAllUsers && !client.conf.allowedUsers.includes(message.author.id)) return;
             let command = message.content.split(" ")[0].trim()
@@ -24,6 +26,8 @@ module.exports = async (client, message) => {
             if (cmd) client.RCONCmd(command, {}, client._socket, message).catch(r => message.reply(`\`\`\`\n${r}\n\`\`\``))
             else {
                 client.RCONCommandHandler(client._socket, message.content, [], message.author).then(async res => {
+                    if (message.content == 'Help' && res.length <= 1495) res = client.fallbacks.Help;
+                    console.log(res)
                     res = JSON.parse(res)
                     let entries = Object.entries(res)
                     if (entries.length > 25) {
@@ -34,9 +38,9 @@ module.exports = async (client, message) => {
                             .setColor('GREEN')
                         entries.forEach(([key, value]) => {
                             key = JSON.stringify(key).replace(/"/g, "")
-                            embed.addField(key, `\`\`\`json\n${typeof value == 'string' ? value : JSON.stringify(value, null, 2)}\n\`\`\``, true)
+                            embed.addField(key, `\`\`\`json\n${typeof value == 'string' ? value.slice(0, 900) : JSON.stringify(value, null, 2).slice(0, 900)}\n\`\`\``, true)
                         })
-                        message.reply({ embed: embed })
+                        message.reply({ embeds: [embed] }).catch(e => console.error(new Error(e)))
                     }
                 }).catch(res => {
                     console.log(res)
@@ -64,7 +68,7 @@ module.exports = async (client, message) => {
                             key = JSON.stringify(key).replace(/"/g, "")
                             embed.addField(key, `\`\`\`json\n${typeof value == 'string' ? value : JSON.stringify(value, null, 2)}\n\`\`\``, true)
                         })
-                        message.reply({ embed: embed })
+                        message.reply({ embeds: [embed] })
                     }
                 }).catch(res => {
                     console.log(res)

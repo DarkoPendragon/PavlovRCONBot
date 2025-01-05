@@ -25,9 +25,7 @@ exports.run = async (client, message, args) => {
         embed.setColor('RANDOM')
         embed.setTimestamp()
         embed.setThumbnail(client.user.avatarURL());
-        message.author.send({
-            embed
-        }).catch(() => {
+        message.author.send({ embeds: [embed] }).catch(() => {
             const embed = new Discord.MessageEmbed();
             embed.setTitle(`Commands Info`)
             embed.setDescription(`Use \`${client.conf.prefix}help commandname\` to view help on a command (use in a server). You have **class ${perms}** access.`)
@@ -37,9 +35,7 @@ exports.run = async (client, message, args) => {
             embed.setColor('RANDOM')
             embed.setTimestamp()
             embed.setThumbnail(client.user.avatarURL())
-            return message.channel.send({
-                embed
-            }).catch(console.error);
+            return message.channel.send({ embeds: [embed] }).catch(console.error);
         });
     } else {
         let command = args.slice(0).join(' ');
@@ -57,9 +53,7 @@ exports.run = async (client, message, args) => {
             if (command.help.usage) embed.addField('Usage:', `${client.conf.prefix}${command.help.usage}`)
             embed.setThumbnail(client.user.avatarURL())
             if (command.help.type == 'RCON') embed.setFooter('RCON commands only run in the RCON channel!')
-            return message.channel.send({
-                embed
-            }).catch(console.error);
+            return message.channel.send({ embeds: [embed] }).catch(console.error);
         } else {
             message.reply(`please give me a valid command!`);
         }
