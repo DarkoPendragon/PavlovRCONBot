@@ -314,34 +314,31 @@ const client = new RCON({
     partials: ['CHANNEL', 'MESSAGE']
 })
 
-async function init() {
-    klaw("./commands").on("data", (item) => {
-        const cmdFile = path.parse(item.path)
-        if (!cmdFile.ext || cmdFile.ext !== ".js") return;
-        try {
-            let props = require(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)
-            console.log(`[R] Loading Command: ${props.help.name}${" ".repeat(25 - props.help.name.length)}♥`)
-            client.commands.set(props.help.name, props)
-            if (props.conf.aliases) props.conf.aliases.forEach(alias => {
-                client.aliases.set(alias, props.help.name)
-            })
-        } catch (e) {
-            return console.log(new Error(`FAIL: ${cmdFile.name}: ${e.stack}`))
-        }
-    })
+klaw("./commands").on("data", (item) => {
+    const cmdFile = path.parse(item.path)
+    if (!cmdFile.ext || cmdFile.ext !== ".js") return;
+    try {
+        let props = require(`${cmdFile.dir}${path.sep}${cmdFile.name}${cmdFile.ext}`)
+        console.log(`[R] Loading Command: ${props.help.name}${" ".repeat(25 - props.help.name.length)}♥`)
+        client.commands.set(props.help.name, props)
+        if (props.conf.aliases) props.conf.aliases.forEach(alias => {
+            client.aliases.set(alias, props.help.name)
+        })
+    } catch (e) {
+        return console.log(new Error(`FAIL: ${cmdFile.name}: ${e.stack}`))
+    }
+})
 
-    klaw("./events").on("data", (item) => {
-        const evtFile = path.parse(item.path)
-        try {
-            if (!evtFile.ext || evtFile.ext !== ".js") return;
-            console.log(`[R] Loading Event: ${evtFile.base}${" ".repeat(27 - evtFile.base.length)}♥`);
-            const event = require(`./events/${evtFile.name}${evtFile.ext}`)
-            client.on(evtFile.name, event.bind(null, client))
-        } catch (e) {
-            console.log(new Error(`EVENT_FAIL: ${evtFile.name}: ${e.stack}`))
-        }
-    })
+klaw("./events").on("data", (item) => {
+    const evtFile = path.parse(item.path)
+    try {
+        if (!evtFile.ext || evtFile.ext !== ".js") return;
+        console.log(`[R] Loading Event: ${evtFile.base}${" ".repeat(27 - evtFile.base.length)}♥`);
+        const event = require(`./events/${evtFile.name}${evtFile.ext}`)
+        client.on(evtFile.name, event.bind(null, client))
+    } catch (e) {
+        console.log(new Error(`EVENT_FAIL: ${evtFile.name}: ${e.stack}`))
+    }
+})
 
-    client.login(client.conf.token)
-}
-init();
+client.login(client.conf.token)
