@@ -1,8 +1,8 @@
 # PavlovRCONBot
-A Discord.js bot that sends RCON commands to a Pavlov server, without any install server side. Also comes with a simple 'dashboard' website to interact with the bot. Everything here is a very simple version of the bot and dashboard, and will be heavily reworked. This is also orignially based off another repo by vankruptgames, which you can view here [by clicking here](https://github.com/vankruptgames/PavlovVR-Rcon). 
+A Discord.js bot that sends RCON commands to a Pavlov server, without any install server side. Also comes with a simple 'dashboard' website to interact with the bot. Everything here is a very simple version of the bot and dashboard, and will be heavily reworked. This is also orignially based off another repo by vankruptgames, which you can view [by clicking here](https://github.com/vankruptgames/PavlovVR-Rcon). 
 
 # Questions or Problems
-If you have an error with the code in the repo, you can open an issue and I'll look at it as soon as possible. However, if you just have a general question or problem you're welcome to join my Discord server and ping me (Darko Pendragon#3219, I likely won't respond to direct messages). Invite link: https://discord.gg/EnrxfERX8T
+If you have an error with the code in the repo, you can open an issue and I'll look at it as soon as possible. However, if you just have a general question or problem you're welcome to join my Discord server and ping me (@darkopendragon). Invite link: https://discord.gg/EnrxfERX8T
 
 # Install
 * Download the project as a `.zip` or clone it using `git clone https://github.com/DarkoPendragon/PavlovRCONBot`
@@ -38,6 +38,15 @@ The RCON bot automatically connects to your Pavlov server and runs RCON commands
 | oauth2.redirect_uri | String | Callback URL set in your applications callback section |
 | oauth2.client_id | String | ID of your Discord Application |
 | oauth2.secret | String | Secret of your Discord Application |  
+
+As of 1.1.0 you can now also give users higher access to commands without needing to give them Discord permissions in your server, under the "staff" section of the config. These are not needed though as the bot will look for the relevant permissions as well by default.
+| Option | Type | Description |  
+| --- | --- | --- |
+| staff.owners | Array | Array of User ID's to have "full" access to commands (level 3) | 
+| staff.admins.roles | Array | Array of Role ID's to allow admin acces (level 2) | 
+| staff.admins.users | Array | Array of User ID's to allow admin acces (level 2) | 
+| staff.moderators.roles | Array | Array of Role ID's to allow moderator acces (level 1) | 
+| staff.moderators.users | Array | Array of User ID's to allow moderator acces (level 1) | 
 # Config
 `config.json` (default):
 ```json
@@ -51,19 +60,31 @@ The RCON bot automatically connects to your Pavlov server and runs RCON commands
         "serverIP": "serverIp",
         "password": "serverPassword"
     },
+    "staff": {
+        "owners": [],
+        "moderators": {
+            "roles": [],
+            "users": []
+        },
+        "admins": {
+            "roles": [],
+            "users": []
+        }
+    },
     "extraLogging": false,
     "loggingChannel": false,
     "runningChannel": "DM",
     "allowAllUsers": true,
     "allowedUsers": [],
+    "intervalSpeed": 300,
     "oauth2": {
         "redirect_uri": "http://localhost:8000/verify/callback",
-        "client_id": "Discord Application Client ID",
-        "secret": "Discord Application Client (OAuth)",
+        "client_id": "applicationID",
+        "secret": "applicationOatuhSecret",
         "scopes": ["identify"]
     },
     "session": {
-        "secret": "sessionSecret",
+        "secret": "secret123",
         "cookie": {
             "maxAge": 86400000
         },
@@ -90,7 +111,7 @@ This will allow anyone with the usernames `Darko Pendragon` and `JimPlatimum` to
 It is highly recommended you change `allowAllUsers` to `false` and enter your own user ID, or changing `runningChannel` to a channel ID only the bot, you and trusted users can see.  
 
 ## Limiting Commands
-Custom commands can be limited to permission levels or roles, but the base commands cannot (yet). This means anyone can could run `Ban YourName` and ban you from your own server. Of course you could just remove the ban or delete the log file for bans, but you should avoid giving access to the bot to people who aren't a moderator or trusted friend regardless.
+Custom commands can be limited to permission levels or roles, but the base commands cannot (yet). This means anyone can could run `Ban YourName` and ban you from your own Pavlov server. Of course you could just remove the ban or delete the log file for bans, but you should avoid giving access to the bot to people who aren't a moderator or trusted friend regardless.
 
 ## Flexability & Documnetation
 Better and more user friendly usage of the bot along with more documentation will come with future updates.
