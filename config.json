@@ -8,6 +8,17 @@
         "serverIP": "serverIp",
         "password": "serverPassword"
     },
+    "staff": {
+        "owners": [],
+        "moderators": {
+            "roles": [],
+            "users": []
+        },
+        "admins": {
+            "roles": [],
+            "users": []
+        }
+    },
     "extraLogging": false,
     "loggingChannel": false,
     "runningChannel": "DM",
