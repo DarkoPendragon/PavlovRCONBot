@@ -21,7 +21,7 @@ exports.run = async (client, opt, soc, msg) => {
             	key = JSON.stringify(key).replace(/"/g, "")
                 if (key != "desc") embed.addField(key, `${typeof value == 'string' ? value : JSON.stringify(value)}`, true)
             })
-            msg.channel.send({embed: embed})
+            msg.reply({embed: embed})
     } else {
     	send()
     }
