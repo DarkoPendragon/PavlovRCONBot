@@ -6,16 +6,16 @@ module.exports = async (client, message) => {
 
     if (message.channel.type == 'GUILD_TEXT' && message.content.startsWith(prefix)) {
         let name = message.content.split(prefix)[1].split(" ")[0]
-    	const command = client.commands.filter(c => c.help.name == name && c.help.type != 'RCON').first();
+        const command = client.commands.filter(c => c.help.name == name && c.help.type != 'RCON').first();
         const args = prefix.includes(" ") ? message.content.split(' ').slice(2) : message.content.split(' ').slice(1);
         const perms = client.elevation(message);
         if (command) {
-        	if (command.conf.permLvl > perms) return;
-        	try {
-        		command.run(client, message, args)
-        	} catch (e) {
-        		console.log(e)
-        	}
+            if (command.conf.permLvl > perms) return;
+            try {
+                command.run(client, message, args)
+            } catch (e) {
+                console.log(e)
+            }
         }
     } else {
         if (message.channel.type == 'DM' && client.conf.runningChannel == "DM") {
@@ -27,7 +27,6 @@ module.exports = async (client, message) => {
             else {
                 client.RCONCommandHandler(client._socket, message.content, [], message.author).then(async res => {
                     if (message.content == 'Help' && res.length <= 1495) res = client.fallbacks.Help;
-                    console.log(res)
                     res = JSON.parse(res)
                     let entries = Object.entries(res)
                     if (entries.length > 25) {
@@ -47,7 +46,7 @@ module.exports = async (client, message) => {
                     message.reply(`Failed Command\n\`\`\`\n${JSON.stringify(res, null, 2)}\n\`\`\``)
                 })
             }
-        } else if (message.channel.type == 'text') {
+        } else if (message.channel.type == 'GUILD_TEXT') {
             if (client.isWaitingInput.has(message.author.id)) return;
             if (message.channel.id != client.conf.runningChannel) return;
             let perms = client.elevation(message)

@@ -12,9 +12,9 @@ exports.run = async (client, opt, soc, msg) => {
                 .setDescription(`${MAPS.map(m => `(**${m.num}**) __**${m.map}**__ ${m.mode}`).join("\n")}`)
                 .setFooter(`Say "STOP" to stop selection!`)
                 .setColor('RANDOM')
-            const TMSG = await msg.channel.send({ embed: embed })
+            const TMSG = await msg.channel.send({ embeds: [embed] })
             const msg_filter = m => m.author.id == msg.author.id;
-            const msg_collector = msg.channel.createMessageCollector(msg_filter, { time: 3600000 });
+            const msg_collector = msg.channel.createMessageCollector({ filter: msg_filter, time: 3600000 });
             msg_collector.on('collect', (m) => {
                 let map = MAPS.filter(s => s.num == m.content)[0]
                 if (map) {

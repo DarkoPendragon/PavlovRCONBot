@@ -11,7 +11,7 @@ exports.run = async (client, opt, soc, msg) => {
         })
         msg.channel.send(`\`\`\`\nONLINE PLAYERS (KILL) ((Number) Username : ID)\n${PLS.map(p => `(${p.number}) ${p.Username} : ${p.UniqueId}`).join("\n")}\n\`\`\``)
         const msg_filter = m => m.author.id == msg.author.id;
-        const msg_collector = msg.channel.createMessageCollector(msg_filter, { time: 3600000 });
+        const msg_collector = msg.channel.createMessageCollector({ filter: msg_filter, time: 3600000 });
         msg_collector.on('collect', m => {
             try {
                 let num = m.content;

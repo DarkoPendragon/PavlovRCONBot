@@ -67,7 +67,7 @@ exports.run = async (client, opt, soc, msg) => {
         })
     })
     const msg_filter = m => m.author.id == msg.author.id;
-    const msg_collector = msg.channel.createMessageCollector(msg_filter, { time: 3600000 });
+    const msg_collector = msg.channel.createMessageCollector({ filter: msg_filter, time: 3600000 });
     msg_collector.on('collect', async m => {
         let item = m.content.includes("|") ? m.content.split("|")[0].trim().replace(/\s/g, '') : m.content.trim().replace(/\s/g, '')
         if (m.content.includes("|")) {

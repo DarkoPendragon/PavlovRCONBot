@@ -26,13 +26,15 @@ class RCON extends Discord.Client {
     userLoggedIn(user, invalid) {
         // you can do whatever with this
         // a basic user object is passed for 'user' and invalid is 'true' if they failed to auth
-        // the user object passed:
+        // the user object passed: (it is a partial version of the below link)
         // https://old.discordjs.dev/#/docs/discord.js/13.14.0/class/User
+        //
+        // example of the info you'll get:
         // {
         //     "id": "Discord User ID",
         //     "username": "Discord Account Username",
         //     "avatar": "avatarFileHash",
-        //     "discriminator": "Discord Account Discriminator",
+        //     "discriminator": "Discord Account Discriminator", (not used, but still exist in d.js v13)
         //     "public_flags": 0,
         //     "flags": 0,
         //     "banner": null,
@@ -42,6 +44,13 @@ class RCON extends Discord.Client {
         //     "mfa_enabled": true
         // }
     }
+
+    // updateEmbedInfo(data) {
+    //     let info = JSON.parse(data)
+    //     this.channels.fetch(this.conf.updateChannel).then((res) => {
+    //         res.edit({ name: `Players: ${d.PlayerList.length}/${res.name.split("/")[1]}` }).catch(console.log)
+    //     }).catch(console.log)
+    // }
 
     RCON_INTER_FUNCTION(cli) {
         if (!cli || !cli.rcon) return false
@@ -100,7 +109,6 @@ class RCON extends Discord.Client {
                 socket.once('data', async (data) => {
                     try {
                         data = Buffer.from(data, 'base64').toString('ascii')
-                        // if (command == 'Help') console.log(data, data.length)
                         if (data.toString().startsWith('Password:')) {
                             await this.wait(1200)
                             socket.write(command)
@@ -110,12 +118,7 @@ class RCON extends Discord.Client {
                                 resolve(data.toString())
                             })
                         } else {
-                            // if (command == "RefreshList") { // allow users to post a list of people online in Discord
-                            //     let d = JSON.parse(data.toString())
-                            //     this.channels.fetch("854005255644905532", true, true).then((res) => {
-                            //         res.edit({ name: `Players: ${d.PlayerList.length}/${res.name.split("/")[1]}` }).catch(console.log)
-                            //     }).catch(console.log)
-                            // }
+                            // if (command == "RefreshList") this.updateEmbedInfo(data) // allow users to post a list of people online in Discord
                             if (user) this.RCONLog(data, { cmd: command, cmdName: command.split(" ")[0], user: { name: user.username, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` } });
                             else this.RCONLog(data, { cmd: command })
                             resolve(data)
