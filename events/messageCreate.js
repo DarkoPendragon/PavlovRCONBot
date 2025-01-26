@@ -22,7 +22,7 @@ module.exports = async (client, message) => {
             if (client.isWaitingInput.has(message.author.id)) return;
             if (!client.conf.allowAllUsers && !client.conf.allowedUsers.includes(message.author.id)) return;
             let command = message.content.split(" ")[0].trim()
-            let cmd = client.commands.filter(c => c.help.type == 'RCON' && c.help.name == command).first()
+            let cmd = client.commands.filter(c => c.help.type == 'RCON' && c.help.name.toLowerCase() == command).first()
             if (cmd) client.RCONCmd(command, {}, client._socket, message).catch(r => message.reply(`\`\`\`\n${r}\n\`\`\``))
             else {
                 client.RCONCommandHandler(client._socket, message.content, [], message.author).then(async res => {
@@ -51,7 +51,7 @@ module.exports = async (client, message) => {
             if (message.channel.id != client.conf.runningChannel) return;
             let perms = client.elevation(message)
             let command = message.content.split(" ")[0].trim()
-            let cmd = client.commands.filter(c => c.help.type == 'RCON' && c.help.name == command).first()
+            let cmd = client.commands.filter(c => c.help.type == 'RCON' && c.help.name.toLowerCase() == command).first()
             if (cmd) client.RCONCmd(command, {}, client._socket, message).catch(r => message.reply(`\`\`\`\n${r}\n\`\`\``))
             else {
                 client.RCONCommandHandler(client._socket, message.content, [], message.author).then(async res => {

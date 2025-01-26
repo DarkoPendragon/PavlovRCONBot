@@ -99,7 +99,7 @@ class RCON extends Discord.Client {
     RCONCommandHandler(socket, command, params, user) {
         return new Promise(async (resolve, reject) => {
             try {
-                let cmd = this.VALID_CMDS.filter(x => x.toLowerCase() == command.split(" ")[0].toLowerCase())[0]
+                let cmd = this.VALID_CMDS.filter(x => x.toLowerCase() == command.toLowerCase().split(" ")[0])[0]
                 if (!cmd && command.toLowerCase() != 'help') throw new Error("invalid command " + command)
                 if (socket.destroyed || !socket.readyState) {
                     await this._socket.connect(this.conf.server.port, this.conf.server.serverIP, () => {});
@@ -168,7 +168,7 @@ class RCON extends Discord.Client {
                         let dres = JSON.parse(res)
                         this.fallbacks.Help = res;
                         let mds = dres.Help.map(c => c.split(" ")[0])
-                        this.VALID_CMDS = mds;
+                        this.VALID_CMDS = this.VALID_CMDS.concat(mds);
                         this.started = true;
                     })
                     if (this.VALID_ITEMS.length == 0) {
@@ -253,7 +253,7 @@ class RCON extends Discord.Client {
     RCONCmd(cmd, options, socket, message) {
         return new Promise(async (resolve, reject) => {
             if (this.isWaitingInput.has(message.author.id)) reject("isWaitingInput")
-            let c = this.commands.filter(c => c.help.type == 'RCON' && c.help.name == cmd).first()
+            let c = this.commands.filter(c => c.help.type == 'RCON' && c.help.name.toLowerCase() == cmd).first()
             if (!c) reject("noCmd")
             try {
                 c.run(this, options, socket, message)
