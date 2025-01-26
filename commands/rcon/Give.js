@@ -20,7 +20,7 @@ exports.run = async (client, opt, soc, msg) => {
         })
         msg.channel.send(`\`\`\`\nONLINE PLAYERS (GIVE) ((Number) Username : ID)\n${PLS.map(p => `(${p.number}) ${p.Username} : ${p.UniqueId}`).join("\n")}\n\`\`\``)
         const msg_filter = m => m.author.id == msg.author.id;
-        const msg_collector = msg.channel.createMessageCollector(msg_filter, { time: 3600000 });
+        const msg_collector = msg.channel.createMessageCollector({ filter: msg_filter, time: 3600000 });
         msg_collector.on('collect', async (m) => {
             if (!passed) {
                 try {
@@ -30,7 +30,7 @@ exports.run = async (client, opt, soc, msg) => {
                         if (player) {
                             passed = true;
                             const EMSG = await msg.channel.send(`What item would you like to give?`)
-                            msg.channel.awaitMessages((m) => m.author.id == msg.author.id, { max: 1, time: 60000, errors: ['time'] })
+                            msg.channel.awaitMessages({ filter: (m) => m.author.id == msg.author.id, max: 1, time: 60000, errors: ['time'] })
                                 .then(async (res) => {
                                     client.isWaitingInput.delete(msg.author.id)
                                     if (res.size) res = res.first()
