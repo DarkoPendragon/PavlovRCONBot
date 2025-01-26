@@ -13,7 +13,7 @@ exports.conf = {
 };
 
 exports.help = {
-  type: 'fun',
+  type: 'utility',
   name: 'ping',
   requireLog: false,
   description: 'Basic response command.',
